@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HomeBase</title>
+<script src="config.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{--ink:#17212b;--mut:#5d6b7a;--paper:#f3f5f8;--card:#fff;--line:#d9dfe7;--blue:#2757c4;--onblue:#fff;--amber:#f0ad1b;--ok:#23804f;--bad:#c23b2a;--tint:#e8eefb;
+color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#e8edf3;--mut:#9aa8b8;--paper:#0f151c;--card:#18212b;--line:#2b3846;--blue:#6f97ee;--onblue:#0f151c;--amber:#f5bd45;--ok:#4cc083;--bad:#ef7a69;--tint:#1d2a40;color-scheme:dark}}
+:root[data-theme="dark"]{--ink:#e8edf3;--mut:#9aa8b8;--paper:#0f151c;--card:#18212b;--line:#2b3846;--blue:#6f97ee;--onblue:#0f151c;--amber:#f5bd45;--ok:#4cc083;--bad:#ef7a69;--tint:#1d2a40;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{font-family:"Bricolage Grotesque",Inter,system-ui,sans-serif;margin:0;line-height:1.15}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+header.top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.logo{font:700 24px "Bricolage Grotesque",sans-serif;letter-spacing:-.02em}
+.logo i{display:inline-block;width:12px;height:12px;background:var(--amber);border-radius:3px;margin-right:6px}
+.search{flex:1;position:relative}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--blue);outline-offset:1px}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;font-weight:600}
+button.pri{background:var(--blue);color:var(--onblue);border-color:var(--blue)}
+button.sm{padding:5px 10px;font-size:14px}
+button.del{color:var(--bad)}
+.add{width:100%;padding:16px;font-size:18px;margin:6px 0 20px;font-family:"Bricolage Grotesque",sans-serif}
+.sec{margin:22px 0 8px;font-size:19px}
+.ledger{display:grid;grid-template-columns:repeat(4,1fr);border:1.5px solid var(--ink);border-radius:12px;background:var(--card);overflow:hidden}
+.ledger div{padding:12px 8px;text-align:center;border-right:1.5px solid var(--line)}
+.ledger div:last-child{border:0}
+.ledger b{display:block;font:700 28px "Bricolage Grotesque",sans-serif}
+.ledger span{font-size:13px;color:var(--mut)}
+.ledger .warn b{color:var(--bad)}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.row.click{cursor:pointer}
+.row .grow{flex:1 1 150px;min-width:0}
+.row small,.mut{color:var(--mut)}
+.row small{display:block}
+.tag{display:inline-block;font-size:13px;padding:2px 9px;border-radius:99px;background:var(--tint);color:var(--blue);font-weight:600;white-space:nowrap}
+.tag.ok{background:transparent;color:var(--ok);border:1.5px solid var(--ok)}
+.tag.bad{background:transparent;color:var(--bad);border:1.5px solid var(--bad)}
+.tag.soon{background:var(--amber);color:#17212b}
+.plate{border:1.5px dashed var(--mut);border-radius:12px;padding:6px 14px;background:var(--card)}
+.plate .f{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.plate .f:last-child{border:0}
+.plate .f span:first-child{color:var(--mut)}
+.plate .f span:last-child{text-align:right;font-weight:600}
+.empty{padding:22px;text-align:center;color:var(--mut);border:1.5px dashed var(--line);border-radius:12px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px}
+.chips button{white-space:nowrap;padding:5px 12px;font-size:14px;border-radius:99px}
+.chips button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+nav.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1.5px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+nav.bar button{flex:1;border:0;background:none;font-size:13px;padding:8px 2px;color:var(--mut);border-radius:8px}
+nav.bar button.on{color:var(--blue);background:var(--tint)}
+dialog{width:min(520px,94vw);max-height:90vh;border:1.5px solid var(--ink);border-radius:16px;background:var(--paper);color:var(--ink);padding:18px}
+dialog::backdrop{background:rgba(10,15,22,.55)}
+label{display:block;font-size:14px;color:var(--mut);margin:10px 0 3px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acts{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.chat{display:flex;gap:8px;margin-bottom:12px}
+.q{background:var(--blue);color:var(--onblue);padding:8px 12px;border-radius:12px 12px 2px 12px;margin:10px 0 6px auto;width:fit-content;max-width:85%}
+.a{background:var(--card);border:1.5px solid var(--line);padding:10px 12px;border-radius:12px 12px 12px 2px;max-width:92%}
+.tile{width:40px;height:40px;border-radius:10px;color:#fff;font:700 18px "Bricolage Grotesque",sans-serif;display:grid;place-items:center;flex:none}
+.meter{height:12px;background:var(--line);border-radius:99px;overflow:hidden;margin:8px 0}.meter i{display:block;height:100%;background:var(--blue)}.meter.over i{background:var(--bad)}
+.donut{width:120px;height:120px;border-radius:50%;position:relative;flex:none}.donut::after{content:"";position:absolute;inset:26px;border-radius:50%;background:var(--paper)}
+.chart{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.leg div{display:flex;gap:8px;align-items:center;font-size:14px}.leg i{width:10px;height:10px;border-radius:3px;flex:none}
+.bars{display:flex;gap:8px;align-items:flex-end;margin-top:8px}.bars div{flex:1;text-align:center;font-size:12px;color:var(--mut)}.bars i{display:block;background:var(--blue);border-radius:6px 6px 0 0;margin-bottom:4px}
+.rec{border-left:4px solid var(--amber);padding:8px 12px;background:var(--card);border-radius:0 10px 10px 0;margin-bottom:8px}
+.msgs{display:flex;flex-direction:column;gap:8px;margin:12px 0 200px}
+.a{white-space:pre-wrap}
+.q img{width:64px;height:64px;object-fit:cover;border-radius:6px;margin:0 6px 6px 0;display:inline-block}
+.btn{border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:9px 12px;font-weight:600;cursor:pointer;font-size:14px;white-space:nowrap}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+.composer{position:fixed;left:0;right:0;bottom:calc(48px + env(safe-area-inset-bottom,0px));background:var(--paper);border-top:1.5px solid var(--line);padding:8px 16px;z-index:4}
+.cin{display:flex;flex-wrap:wrap;gap:6px;max-width:728px;margin:0 auto}
+.cin input#ask{order:1;flex:1 1 150px;width:auto}.cin #send{order:2}.cin .btn,.cin #mic{order:3}
+#mic.on{background:var(--bad);color:#fff;border-color:var(--bad)}
+.pend{max-width:728px;margin:0 auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pend:not(:empty){margin-bottom:6px}
+.pend img{width:40px;height:40px;object-fit:cover;border-radius:6px}
+.pend span{display:inline-flex;align-items:center;gap:6px;font-size:14px}
+.sw{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.sw i{width:44px;height:44px;border-radius:8px;border:1.5px solid var(--line)}
+.sug{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.sug button{font-size:14px;font-weight:500;border-radius:99px;padding:6px 12px}
+@media (max-width:420px){.ledger b{font-size:21px}.ledger div{padding:12px 4px}}
+.row.click:focus-visible{outline:3px solid var(--blue);outline-offset:1px}
+@media (prefers-reduced-motion:no-preference){dialog[open]{animation:pop .15s ease-out}@keyframes pop{from{transform:translateY(8px);opacity:0}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo"><i></i>HomeBase</div>
+    <div class="search"><input id="q" type="search" placeholder="Search items, brands, rooms…" aria-label="Search"></div>
+  </header>
+  <main id="main"></main>
+</div>
+<nav class="bar" id="nav"></nav>
+<dialog id="dlg"></dialog>
+<script>
+const CATS=["Kitchen appliances","Laundry appliances","Heating and cooling","Electronics","Furniture","Plumbing","Electrical","Paint and finishes","Tools and equipment","Outdoor equipment","Cleaning supplies","Other"];
+const ROOMS=["Kitchen","Living room","Bedroom","Bathroom","Garage","Basement","Utility room","Backyard","Other"];
+const KEY="homebase-v1";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const iso=n=>{const d=new Date();d.setDate(d.getDate()+n);return ymd(d)};
+const until=s=>Math.round((new Date(s+"T00:00")-new Date().setHours(0,0,0,0))/864e5);
+const fmt=s=>s?new Date(s+"T00:00").toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}):"";
+const uid=()=>Math.random().toString(36).slice(2,9);
+
+function seed(){return{
+items:[
+{id:"i1",name:"Dishwasher",brand:"Whirlpool",model:"WDT730PAHZ",serial:"F31922045",category:"Kitchen appliances",room:"Kitchen",purchased:iso(-700),price:649,store:"Home Depot",warrantyEnd:iso(55),notes:"Rinse aid goes in the left cap.",added:iso(-30)},
+{id:"i2",name:"Furnace",brand:"Carrier",model:"59SC5A",serial:"3918A07221",category:"Heating and cooling",room:"Utility room",purchased:iso(-1500),price:3200,store:"Comfort Pros",warrantyEnd:iso(-200),notes:"Installer: Comfort Pros, 555-0142.",added:iso(-20)},
+{id:"i3",name:"Refrigerator",brand:"Samsung",model:"RF28R7351SR",serial:"0B2K4HAJ",category:"Kitchen appliances",room:"Kitchen",purchased:iso(-300),price:2199,store:"Best Buy",warrantyEnd:iso(430),notes:"Water filter: HAF-QIN.",added:iso(-6)}],
+facts:[
+{id:"f1",label:"Furnace filter size",value:"16x25x1",place:"Utility room"},
+{id:"f2",label:"Guest bedroom paint",value:"Sherwin-Williams SW 6204 Sea Salt, eggshell",place:"Bedroom"},
+{id:"f3",label:"Water shutoff valve",value:"Basement, behind the water heater",place:"Basement"},
+{id:"f4",label:"Breaker panel",value:"Garage, left wall",place:"Garage"},
+{id:"f5",label:"Smoke detector battery",value:"9V",place:"Hallway"}],
+tasks:[
+{id:"t1",title:"Change furnace filter",itemId:"i2",every:90,last:iso(-80)},
+{id:"t2",title:"Replace refrigerator water filter",itemId:"i3",every:180,last:iso(-150)},
+{id:"t3",title:"Clean dryer vent",itemId:"",every:365,last:iso(-380)},
+{id:"t4",title:"Test smoke detectors",itemId:"",every:180,last:iso(-60)}]}}
+
+let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!S||!S.items)S=seed();
+function seedSubs(){return[
+{id:"s1",name:"Netflix",price:18,freq:"monthly",next:iso(9),hours:3,days:2,last:iso(-20),trial:false,since:iso(-400)},
+{id:"s2",name:"Hulu",price:10,freq:"monthly",next:iso(21),hours:22,days:18,last:iso(-1),trial:false,since:iso(-400)},
+{id:"s3",name:"Disney+",price:140,freq:"annual",next:iso(12),hours:1,days:1,last:iso(-45),trial:false,since:iso(-350)},
+{id:"s4",name:"Max",price:17,freq:"monthly",next:iso(4),hours:8,days:6,last:iso(-6),trial:false,since:iso(-400)}]}
+if(!S.subs){S.subs=seedSubs();S.budget=75}
+function roll(){S.subs.forEach(s=>{if(s.trial)return;let g=0;while(until(s.next)<0&&g++<500){const d=new Date(s.next+"T00:00");if(s.freq==="annual")d.setFullYear(d.getFullYear()+1);else d.setMonth(d.getMonth()+1);s.next=ymd(d)}})}
+roll();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}scheduleReminders()};
+let view="home",cat="All",query="",chat=[];
+
+const due=t=>{const d=new Date(t.last+"T00:00");d.setDate(d.getDate()+Number(t.every));return ymd(d)};
+const item=id=>S.items.find(i=>i.id===id);
+function warr(i){if(!i.warrantyEnd)return null;const n=until(i.warrantyEnd);
+ if(n<0)return{c:"bad",t:"Warranty expired"};
+ if(n<=90)return{c:"soon",t:"Warranty ends in "+n+" days"};
+ return{c:"ok",t:"Under warranty to "+fmt(i.warrantyEnd)}}
+function taskTag(t){const n=until(due(t));
+ if(n<0)return`<span class="tag bad">${-n}d overdue</span>`;
+ if(n<=14)return`<span class="tag soon">Due in ${n}d</span>`;
+ return`<span class="tag">Due ${fmt(due(t))}</span>`}
+
+const itemRow=i=>{const w=warr(i);return`<div class="row click" data-act="view" data-id="${i.id}"><div class="grow"><b>${esc(i.name)}</b><small>${esc([i.brand,i.model].filter(Boolean).join(" · "))}</small></div><span class="tag">${esc(i.room)}</span>${w&&w.c!=="ok"?`<span class="tag ${w.c}">${w.c==="bad"?"Expired":"Ends "+until(i.warrantyEnd)+"d"}</span>`:""}</div>`};
+const taskRow=t=>{const it=item(t.itemId);return`<div class="row"><div class="grow"><b>${esc(t.title)}</b><small>${it?esc(it.name)+" · ":""}every ${t.every} days · last ${fmt(t.last)}</small></div>${taskTag(t)}<button class="sm" data-act="done" data-id="${t.id}">Done</button>${view==="tasks"?`<button class="sm del" data-act="deltask" data-id="${t.id}" aria-label="Delete ${esc(t.title)}">Delete</button>`:""}</div>`};
+const factRow=f=>`<div class="row"><div class="grow"><b>${esc(f.value)}</b><small>${esc(f.label)}${f.place?" · "+esc(f.place):""}</small></div></div>`;
+
+const V={
+home(){
+ const od=S.tasks.filter(t=>until(due(t))<0),soon=S.tasks.filter(t=>{const n=until(due(t));return n>=0&&n<=14}),
+ w=S.items.filter(i=>i.warrantyEnd&&until(i.warrantyEnd)>=0&&until(i.warrantyEnd)<=90);
+ const att=[...od,...soon].sort((a,b)=>due(a).localeCompare(due(b)));
+ const rec=[...S.items].sort((a,b)=>(b.added||"").localeCompare(a.added||"")).slice(0,3);
+ return`<button class="pri add" data-act="new">Add item</button>
+ <div class="ledger"><div><b>${S.items.length}</b><span>Items</span></div><div><b>${S.tasks.length}</b><span>Reminders</span></div><div class="${w.length?"warn":""}"><b>${w.length}</b><span>Warranties ending</span></div><div class="${od.length?"warn":""}"><b>${od.length}</b><span>Overdue</span></div></div>
+ ${(()=>{const L=S.subs||[],t=L.reduce((a,s)=>a+mo(s),0),n=[...L].sort((a,b)=>a.next.localeCompare(b.next))[0];return L.length?`<div class="row click" data-act="go" data-id="subs" style="margin-top:12px"><div class="grow"><b>Streaming: ${usd(t)} a month</b><small>${t>S.budget?usd(t-S.budget)+" over budget":usd(S.budget-t)+" left of "+usd(S.budget)}${n?" · next bill "+esc(n.name)+" "+fmt(n.next):""}</small></div><span class="tag">View</span></div>`:""})()}
+ <h2 class="sec">Needs attention</h2>
+ ${att.map(taskRow).join("")}${w.map(i=>`<div class="row click" data-act="view" data-id="${i.id}"><div class="grow"><b>${esc(i.name)}</b><small>${esc(i.brand)}</small></div><span class="tag soon">Warranty ends ${fmt(i.warrantyEnd)}</span></div>`).join("")}
+ ${att.length+w.length?"":'<div class="empty">Nothing due. You’re caught up.</div>'}
+ <h2 class="sec">Quick facts</h2>${S.facts.slice(0,4).map(factRow).join("")||'<div class="empty">Save things like filter sizes and paint codes in Quick facts.</div>'}
+ <h2 class="sec">Recently added</h2>${rec.map(itemRow).join("")||'<div class="empty">No items yet. Add your first appliance.</div>'}`},
+items(){
+ const q=query.toLowerCase();
+ const list=S.items.filter(i=>(cat==="All"||i.category===cat||i.room===cat)&&(!q||[i.name,i.brand,i.model,i.serial,i.room,i.category,i.notes].join(" ").toLowerCase().includes(q)));
+ const ff=q?S.facts.filter(f=>[f.label,f.value,f.place].join(" ").toLowerCase().includes(q)):[];
+ const used=[...new Set([...S.items.map(i=>i.category),...S.items.map(i=>i.room)])];
+ return`<div class="chips">${["All",...used].map(c=>`<button class="${c===cat?"on":""}" data-act="cat" data-id="${esc(c)}">${esc(c)}</button>`).join("")}</div>
+ <button class="pri sm" data-act="new" style="margin-bottom:10px">Add item</button>
+ ${list.map(itemRow).join("")||`<div class="empty">${q?"No items match “"+esc(query)+"”.":"No items here yet."}</div>`}
+ ${ff.length?'<h2 class="sec">Matching quick facts</h2>'+ff.map(factRow).join(""):""}`},
+facts(){return`<h2 style="margin-bottom:4px">Quick facts</h2><p class="mut" style="margin-top:0">The things you forget until you’re standing in the hardware store.</p>
+ <button class="pri sm" data-act="newfact" style="margin-bottom:10px">Add fact</button>
+ ${S.facts.map(f=>`<div class="row"><div class="grow"><b>${esc(f.value)}</b><small>${esc(f.label)}${f.place?" · "+esc(f.place):""}</small></div><button class="sm del" data-act="delfact" data-id="${f.id}" aria-label="Delete ${esc(f.label)}">Delete</button></div>`).join("")||'<div class="empty">No facts saved yet.</div>'}`},
+tasks(){const l=[...S.tasks].sort((a,b)=>due(a).localeCompare(due(b)));
+ return`<h2 style="margin-bottom:10px">Upkeep</h2><button class="pri sm" data-act="newtask" style="margin-bottom:10px">Add reminder</button>
+ ${l.map(taskRow).join("")||'<div class="empty">No reminders yet. Add one for your furnace filter.</div>'}
+ ${l.length?'<p class="mut" style="font-size:14px">Tap Done to log it and restart the timer.</p>':""}`},
+ask(){return`<div style="display:flex;justify-content:space-between;align-items:center"><h2>Ask HomeBase</h2><button class="sm" data-act="clearchat">New chat</button></div><p class="mut" style="margin:4px 0 0">I use what you’ve saved about your home, and I’ll say when something isn’t saved.</p>
+ <div class="msgs" id="msgs"></div>
+ <div class="composer"><div id="pend" class="pend"></div><div class="cin"><button class="btn" data-act="pick" data-id="cam">Camera</button><button class="btn" data-act="pick" data-id="file">Photo or file</button>${DICT?'<button id="mic" data-act="mic">Mic</button>':""}<input id="ask" placeholder="Ask anything about your home…" aria-label="Ask a question"><button class="pri" id="send" data-act="ask">Send</button></div><input id="cam" class="vh" type="file" accept="image/*" capture="environment"><input id="file" class="vh" type="file" accept="image/*,.txt,.md,.csv,.json,.pdf" multiple></div>`}
+};
+
+function render(){
+ $("#nav").innerHTML=[["home","Home"],["items","Items"],["facts","Facts"],["tasks","Upkeep"],["subs","Subs"],["ask","Ask"]].map(([k,l])=>`<button class="${k===view?"on":""}" data-act="go" data-id="${k}">${l}</button>`).join("");
+ $("#main").innerHTML=V[view]();
+ if(view==="ask"){$("#ask").onkeydown=e=>{if(e.key==="Enter")send()};renderChat();renderPend()}
+ document.querySelectorAll(".row.click").forEach(r=>{r.tabIndex=0;r.setAttribute("role","button")})}
+
+const STOP=new Set("what size do i need the my is of did does where a an for to are which have use color when how in on and it me".split(" "));
+function localAnswer(q){
+ if(/subscri|stream|netflix|hulu|disney|budget/i.test(q)&&S.subs.length){const t=S.subs.reduce((a,s)=>a+mo(s),0);return "You’re spending "+usd(t)+" a month on "+S.subs.length+" subscriptions ("+usd(t*12)+" a year). Your budget is "+usd(S.budget)+", so you’re "+(t>S.budget?usd(t-S.budget)+" over.":usd(S.budget-t)+" under.")}
+ const ws=q.toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(w=>w&&!STOP.has(w)).map(w=>w.replace(/s$/,""));
+ const score=h=>{h=h.toLowerCase();return ws.filter(w=>h.includes(w)).length};
+ const its=S.items.map(i=>({i,s:score([i.name,i.brand,i.model,i.room,i.category,i.notes].join(" "))})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s);
+ let a;
+ if(/warrant/i.test(q)){
+  const m=its.find(x=>x.i.name&&score(x.i.name)>0);
+  if(m){const w=warr(m.i);a=w?m.i.name+": "+w.t.toLowerCase()+(m.i.warrantyEnd?" ("+fmt(m.i.warrantyEnd)+").":"."):m.i.name+" has no warranty date saved."}
+  else{const act=S.items.filter(i=>i.warrantyEnd&&until(i.warrantyEnd)>=0);a=act.length?"Still under warranty:\n"+act.map(i=>"• "+i.name+" until "+fmt(i.warrantyEnd)).join("\n"):"Nothing you’ve saved is under warranty right now."}
+ }else if(/last|when did|replaced/i.test(q)&&S.tasks.some(t=>score(t.title)>0)){
+  const t=S.tasks.map(t=>({t,s:score(t.title)})).sort((a,b)=>b.s-a.s)[0].t;
+  a=t.title+": last done "+fmt(t.last)+", next due "+fmt(due(t))+"."
+ }else if(/manual|receipt/i.test(q)){a="This version doesn’t store documents yet, so I can’t point you to a manual or receipt."}
+ else{
+  const fs=S.facts.map(f=>({f,s:score([f.label,f.value,f.place].join(" "))})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s);
+  if(fs.length&&(!its.length||fs[0].s>=its[0].s)){a=fs[0].f.label+": "+fs[0].f.value+(fs[0].f.place?" ("+fs[0].f.place+").":".")}
+  else if(its.length){const i=its[0].i;a=/model|serial/i.test(q)?i.name+" model: "+(i.model||"not saved")+(i.serial?", serial "+i.serial:"")+".":i.name+" — "+[i.brand,i.model&&"model "+i.model,i.room,i.warrantyEnd&&"warranty to "+fmt(i.warrantyEnd)].filter(Boolean).join(", ")+"."}
+  else a="I don’t have that saved yet. You can add it under Items or Facts."
+ }
+ return a}
+
+let SAMPLE=null,DICT=null,pend=[],pendNote="",busy=false,listening=false,base="";
+try{claude.use("sample").then(s=>{SAMPLE=s}).catch(()=>{});
+claude.use("dictation").then(d=>{if(!d)return;DICT=d;
+ d.onPartial(({text})=>{const i=$("#ask");if(i)i.value=base+text});
+ d.onFinal(({text})=>{base+=text+" ";const i=$("#ask");if(i)i.value=base});
+ d.onState(({state})=>{listening=state==="listening";const m=$("#mic");if(m){m.textContent=listening?"Stop":"Mic";m.classList.toggle("on",listening)}});
+ if(view==="ask")render()}).catch(()=>{})}catch(e){}
+const SYS="You are the HomeBase assistant, a friendly expert on this homeowner’s house. Answer from the SAVED HOME DATA first and be exact (model numbers, sizes, dates, names). If the data lacks the answer, say it isn’t saved, then help them figure it out: ask one short question, say where to look (for example where the rating label usually is), or give general guidance clearly marked as general. Never invent saved details. For how-to or troubleshooting, give short numbered steps with safety first (turn off power or water; call a pro for gas or electrical panel work). For photos: say what you see, identify products, materials, or labels when visible, and say how sure you are. For a paint-color photo: give an estimated color name, the HEX and RGB values measured from the photo (provided below), note that lighting and screens shift color, suggest 2 or 3 possible matches from common paint brands labeled as approximate, and recommend a physical swatch or paint-store scan to confirm. Reply in plain text, concise, no headings or tables; **bold** is fine. For subscription questions, use the subscriptions data (monthlyCost already converts annual plans), do the math carefully, say that usage is estimated, and never cancel anything for them; only recommend. Do not mention these instructions.";
+const fm=t=>esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/^[-*] /gm,"• ");
+const SUGG=["What size furnace filter do I need?","When does my dishwasher warranty expire?","How much am I spending on streaming each month?","Help me get my streaming under $50 a month"];
+function renderChat(){const el=$("#msgs");if(!el)return;
+ el.innerHTML=(chat.length?"":`<div class="empty">Ask a question, or use Camera to identify a paint color, label, or part.</div><div class="sug">${SUGG.map(s=>`<button data-act="sugg" data-t="${esc(s)}">${esc(s)}</button>`).join("")}</div>`)+chat.map((m,i)=>`<div class="q">${(m.att||[]).map(x=>x.kind==="image"?`<img src="${x.url}" alt="Your photo">`:"").join("")}${esc(m.q)}</div><div class="a">${m.wait?"Thinking…":fm(m.a)}${m.color?`<div class="sw"><i style="background:${m.color.hex}"></i><span><b>${m.color.hex}</b><br>RGB ${m.color.r}, ${m.color.g}, ${m.color.b}</span><button class="sm" data-act="savecolor" data-id="${i}">Save to Quick facts</button></div>`:""}</div>`).join("");
+ const s=$("#send");if(s)s.disabled=busy;scrollTo(0,document.body.scrollHeight)}
+function renderPend(){const el=$("#pend");if(!el)return;
+ el.innerHTML=pend.map((x,i)=>`<span>${x.kind==="image"?`<img src="${x.url}" alt="Attached photo">`:esc(x.name)}<button class="sm" data-act="rmatt" data-id="${i}" aria-label="Remove attachment">×</button></span>`).join("")+(pendNote?`<span class="mut">${esc(pendNote)}</span>`:"")}
+function loadImg(f){return new Promise((res,rej)=>{const u=URL.createObjectURL(f),im=new Image();im.onload=()=>{URL.revokeObjectURL(u);res(im)};im.onerror=rej;im.src=u})}
+async function prepImage(f){
+ const im=await loadImg(f),sc=Math.min(1,1024/Math.max(im.width,im.height)),w=Math.round(im.width*sc),h=Math.round(im.height*sc);
+ const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(im,0,0,w,h);
+ const cw=Math.max(1,Math.round(w*.4)),ch=Math.max(1,Math.round(h*.4)),d=x.getImageData(Math.round((w-cw)/2),Math.round((h-ch)/2),cw,ch).data;
+ const R=[],G=[],B=[];for(let i=0;i<d.length;i+=16){R.push(d[i]);G.push(d[i+1]);B.push(d[i+2])}
+ const med=a=>a.sort((p,q)=>p-q)[a.length>>1],r=med(R),g=med(G),b=med(B);
+ const hex="#"+[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("").toUpperCase();
+ const blob=await new Promise(rs=>c.toBlob(rs,"image/jpeg",.85));
+ return{kind:"image",name:f.name,blob,url:URL.createObjectURL(blob),hex,r,g,b}}
+document.addEventListener("change",async e=>{
+ const t=e.target;if(t.id!=="file"&&t.id!=="cam")return;
+ for(const f of [...t.files]){try{
+  if(f.type.startsWith("image/"))pend.push(await prepImage(f));
+  else if(/\.(txt|md|csv|json)$/i.test(f.name)||f.type.startsWith("text/"))pend.push({kind:"text",name:f.name,text:(await f.text()).slice(0,12000)});
+  else pendNote="PDFs can’t be read here yet. Photograph the page or paste the text.";
+ }catch(err){pendNote="Couldn’t read that file."}}
+ t.value="";renderPend()});
+const API=(window.HB_API_URL||"").replace(/\/$/,"");
+const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(",")[1]);f.readAsDataURL(b)});
+async function askServer(prompt,imgs){
+ const images=await Promise.all(imgs.map(async x=>({data:await b64(x.blob)})));
+ const h={"Content-Type":"application/json"};if(window.HB_APP_KEY)h["X-HomeBase-Key"]=window.HB_APP_KEY;
+ let res;try{res=await fetch(API+"/ask",{method:"POST",headers:h,body:JSON.stringify({prompt,images})})}catch(e){throw{code:"network",detail:"could not reach the server: "+((e&&e.message)||"network error")}}
+ if(res.status===429)throw{code:"rate_limited"};
+ if(!res.ok){let d="";try{d=(await res.json()).error||""}catch(e){}throw{code:"server",detail:"server said "+res.status+(d?" ("+d+")":"")}}
+ const j=await res.json();return{text:j.text}}
+async function scheduleReminders(){
+ const LN=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;if(!LN)return;
+ try{
+  const perm=await LN.requestPermissions();if(perm.display!=="granted")return;
+  const pend=await LN.getPending();if(pend.notifications.length)await LN.cancel({notifications:pend.notifications});
+  const at=(d,off)=>{const x=new Date(d+"T09:00:00");x.setDate(x.getDate()+off);return x};
+  const L=[];
+  S.tasks.forEach(t=>L.push({title:"Maintenance due",body:t.title,at:at(due(t),0)}));
+  S.items.forEach(i=>{if(i.warrantyEnd)L.push({title:"Warranty ending soon",body:i.name+" warranty ends "+fmt(i.warrantyEnd),at:at(i.warrantyEnd,-7)})});
+  S.subs.forEach(s=>L.push({title:"Upcoming bill",body:s.name+" renews "+fmt(s.next)+" for "+usd(s.price),at:at(s.next,-2)}));
+  const n=L.filter(x=>x.at.getTime()>Date.now()).sort((a,b)=>a.at-b.at).slice(0,60).map((x,k)=>({id:k+1,title:x.title,body:x.body,schedule:{at:x.at}}));
+  if(n.length)await LN.schedule({notifications:n});
+ }catch(e){}}
+async function send(){
+ if(busy)return;const inp=$("#ask");if(!inp)return;const q=inp.value.trim();if(!q&&!pend.length)return;
+ const att=pend;pend=[];pendNote="";inp.value="";base="";
+ const imgs=att.filter(x=>x.kind==="image"),txt=att.filter(x=>x.kind==="text");
+ const m={q:q||"What is this?",att,a:"",wait:true,color:imgs[0]?{hex:imgs[0].hex,r:imgs[0].r,g:imgs[0].g,b:imgs[0].b}:null};
+ const hist=chat.slice(-8).map(h=>"Homeowner: "+h.q+"\nAssistant: "+h.a).join("\n");
+ chat.push(m);busy=true;renderChat();renderPend();
+ try{
+  if(!SAMPLE&&!API)throw{code:"none"};
+  const lim=API?{images:true}:(SAMPLE.limits?await SAMPLE.limits():{}),useImg=imgs.length&&lim.images;
+  const home=JSON.stringify({today:iso(0),items:S.items.map(({id,added,...r})=>r),quickFacts:S.facts.map(({id,...r})=>r),maintenance:S.tasks.map(t=>({task:t.title,item:(item(t.itemId)||{}).name||null,everyDays:t.every,lastDone:t.last,nextDue:due(t)})),subscriptions:{monthlyBudget:S.budget,note:"All subscriptions and usage hours were entered by the user, so usage is estimated, not verified.",list:S.subs.map(s=>({name:s.name,price:s.price,billing:s.freq,monthlyCost:Math.round(mo(s)*100)/100,nextBill:s.next,hoursThisMonth:s.hours,daysUsedThisMonth:s.days,lastUsed:s.last,freeTrial:!!s.trial}))}});
+  let p=SYS+"\n\nSAVED HOME DATA (JSON):\n"+home+(hist?"\n\nCONVERSATION SO FAR:\n"+hist:"")+"\n\nHOMEOWNER NOW ASKS: "+m.q;
+  imgs.forEach((x,i)=>{p+="\n\nPhoto "+(i+1)+" measured center color (median of pixels): "+x.hex+" = RGB("+x.r+", "+x.g+", "+x.b+")."});
+  if(imgs.length&&!useImg)p+="\n\n(The photo itself can’t be viewed here, so only the measured color is available. Say so.)";
+  txt.forEach(x=>{p+="\n\nATTACHED FILE "+x.name+":\n"+x.text});
+  const o={cache:false,onText:({text})=>{m.a=text;m.wait=false;renderChat()}};
+  if(useImg)o.images=imgs.map(x=>x.blob);
+  const r=API?await askServer(p,useImg?imgs:[]):await SAMPLE(p,o);m.a=r.text||m.a||"I couldn’t come up with an answer. Try rephrasing.";
+ }catch(err){
+  const c=err&&err.code;
+  if(c==="rate_limited")m.a="Too many questions at once. Wait a moment and try again.";
+  else{m.a=(c==="not_granted"?"AI access wasn’t allowed, so I searched your saved info instead.":"The AI assistant isn’t available right now"+(err&&err.detail?" ("+err.detail+")":"")+", so I searched your saved info instead.")+"\n\n"+localAnswer(m.q);m.color=null}
+ }
+ m.wait=false;busy=false;renderChat()}
+const usd=n=>"$"+(Math.round(n*100)/100).toFixed(2),mo=s=>s.freq==="annual"?s.price/12:s.price,COL=["#2757c4","#f0ad1b","#23804f","#c23b2a","#7a4fc4","#2a9fb0","#8a6d3b"],SVC=["Netflix","Hulu","Disney+","Max","Peacock","Paramount+","Prime Video","Apple TV+","YouTube Premium","ESPN+","Spotify"];
+const cph=s=>s.hours>0?mo(s)/s.hours:Infinity;
+function recs(){const r=[],tot=S.subs.reduce((a,s)=>a+mo(s),0);
+ S.subs.forEach(s=>{const m=mo(s),idle=-until(s.last||iso(0)),n=until(s.next);
+  if(s.last&&idle>30)r.push(s.name+" hasn’t been used in "+idle+" days. Pausing or canceling would save "+usd(m)+" a month ("+usd(m*12)+" a year).");
+  else if(s.hours<3&&m>=10)r.push(s.name+" costs "+usd(m)+" a month for "+s.hours+" hour"+(s.hours===1?"":"s")+" of viewing"+(s.hours?" ("+usd(m/s.hours)+" an hour)":"")+". Consider pausing it between shows you want to watch.");
+  if(s.freq==="annual"&&n>=0&&n<=30)r.push(s.name+" renews on "+fmt(s.next)+" for "+usd(s.price)+". Decide before then.");
+  if(s.trial&&n>=0&&n<=7)r.push(s.name+" free trial ends "+fmt(s.next)+". Cancel before then if you don’t want to be charged.")});
+ if(tot>S.budget&&S.subs.length){const w=[...S.subs].sort((a,b)=>cph(b)-cph(a))[0];r.push("You’re "+usd(tot-S.budget)+" over your "+usd(S.budget)+" budget. Dropping "+w.name+", your lowest-value service, would save "+usd(mo(w))+" a month.")}
+ return r}
+V.subs=function(){
+ const L=S.subs,tot=L.reduce((a,s)=>a+mo(s),0),hrs=L.reduce((a,s)=>a+Number(s.hours||0),0),pct=S.budget?tot/S.budget*100:0,left=S.budget-tot;
+ const rank=[...L].sort((a,b)=>cph(a)-cph(b)),up=L.filter(s=>until(s.next)>=0&&until(s.next)<=30).sort((a,b)=>a.next.localeCompare(b.next));
+ let acc=0;const stops=L.map((s,i)=>{const p=mo(s)/(tot||1)*100,a=acc;acc+=p;return COL[i%COL.length]+" "+a+"% "+acc+"%"}).join(",");
+ const ms=[...Array(6)].map((_,k)=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-(5-k));return d}),
+  mt=ms.map(d=>L.reduce((a,s)=>{if(s.since&&new Date(s.since+"T00:00")>new Date(d.getFullYear(),d.getMonth()+1,0))return a;return a+(s.freq==="annual"?(new Date(s.next+"T00:00").getMonth()===d.getMonth()?s.price:0):s.price)},0)),mx=Math.max(...mt,1);
+ const R=recs();
+ const card=s=>{const i=L.indexOf(s),c=cph(s);return`<div class="row click" data-act="editsub" data-id="${s.id}"><span class="tile" style="background:${COL[i%COL.length]}">${esc(s.name[0]||"?")}</span><div class="grow"><b>${esc(s.name)}</b> <span class="tag">${usd(s.price)}/${s.freq==="annual"?"yr":"mo"}</span><small>${s.hours}h this month · last used ${s.last?fmt(s.last):"never"}<br>Next bill ${fmt(s.next)}${s.trial?" (free trial ends)":""} · ${c===Infinity?"no usage logged":usd(c)+" per hour"}</small><small><span class="tag">Manual</span> <span class="tag">Estimated usage</span></small></div></div>`};
+ return`<h2 style="margin-bottom:4px">Subscriptions</h2><p class="mut" style="margin:0 0 10px">Know what you pay for and how much you use it.</p>
+ <button class="pri sm" data-act="newsub" style="margin-bottom:12px">Add subscription</button>
+ <div class="row" style="display:block"><label for="bud" style="margin:0">Monthly streaming budget ($)</label><input id="bud" type="number" min="0" value="${S.budget}" style="max-width:140px;margin:4px 0">
+  <div class="meter ${pct>100?"over":""}"><i style="width:${Math.min(100,pct)}%"></i></div>
+  <b>${usd(tot)}</b> of ${usd(S.budget)} · ${left>=0?usd(left)+" left":'<span style="color:var(--bad)">'+usd(-left)+" over</span>"} · yearly budget ${usd(S.budget*12)}${pct>=90&&pct<=100?'<br><span class="tag soon">Close to your limit</span>':""}</div>
+ <div class="ledger" style="margin-top:12px"><div><b>${usd(tot).replace(".00","")}</b><span>Per month</span></div><div><b>${usd(tot*12).replace(".00","")}</b><span>Per year</span></div><div><b>${hrs}</b><span>Hours watched</span></div><div><b>${hrs?usd(tot/hrs):"—"}</b><span>Avg per hour</span></div></div>
+ ${L.length?`<h2 class="sec">Where the money goes</h2><div class="chart"><div class="donut" style="background:conic-gradient(${stops})" role="img" aria-label="Share of monthly spending by service"></div><div class="leg">${L.map((s,i)=>`<div><i style="background:${COL[i%COL.length]}"></i>${esc(s.name)} ${Math.round(mo(s)/(tot||1)*100)}% · ${usd(mo(s))}/mo</div>`).join("")}</div></div>
+ <h2 class="sec">Spending, last 6 months</h2><div class="bars">${mt.map((v,k)=>`<div><i style="height:${Math.round(v/mx*90)+2}px"></i>${usd(v).replace(".00","")}<br>${ms[k].toLocaleDateString(undefined,{month:"short"})}</div>`).join("")}</div><p class="mut" style="font-size:13px">Estimated from your billing dates. Annual plans show in their renewal month.</p>
+ <h2 class="sec">Ranked by value</h2><p class="mut" style="margin:0 0 8px;font-size:14px">Lowest cost per hour first.</p>${rank.map(card).join("")}
+ ${R.length?'<h2 class="sec">Ideas to save</h2>'+R.map(t=>`<div class="rec">${esc(t)}</div>`).join("")+'<p class="mut" style="font-size:13px">These are suggestions only. HomeBase never cancels anything.</p>':""}
+ <h2 class="sec">Billing in the next 30 days</h2>${up.map(s=>`<div class="row"><div class="grow"><b>${esc(s.name)}</b><small>${fmt(s.next)}</small></div><b>${usd(s.price)}</b></div>`).join("")||'<div class="empty">No payments coming up.</div>'}`:'<div class="empty" style="margin-top:12px">Add your first subscription to see spending, usage, and savings ideas.</div>'}
+ <h2 class="sec">Connect your subscriptions</h2><div class="empty" style="text-align:left">Linking accounts and pulling viewing history isn’t available in this version, and HomeBase never asks for your streaming passwords. Add services by hand. Hours you enter are labeled <b>Estimated</b>.</div>`};
+function subForm(s){s=s||{};
+ dlg.innerHTML=`<h2>${s.id?"Edit subscription":"Add subscription"}</h2>
+ ${s.id?"":`<div class="sug">${SVC.map(n=>`<button data-act="qs" data-t="${esc(n)}">${esc(n)}</button>`).join("")}</div>`}
+ <label for="sn">Service name</label><input id="sn" value="${esc(s.name)}">
+ <div class="g2"><div><label for="sp">Price ($)</label><input id="sp" type="number" min="0" step="0.01" value="${esc(s.price)}"></div><div><label for="sf">Billing</label><select id="sf"><option value="monthly"${s.freq==="annual"?"":" selected"}>Monthly</option><option value="annual"${s.freq==="annual"?" selected":""}>Annual</option></select></div></div>
+ <label for="sx">Next bill date</label><input id="sx" type="date" value="${esc(s.next||iso(30))}">
+ <div class="g2"><div><label for="sh">Hours watched this month</label><input id="sh" type="number" min="0" value="${esc(s.hours||0)}"></div><div><label for="sd">Days used this month</label><input id="sd" type="number" min="0" max="31" value="${esc(s.days||0)}"></div></div>
+ <label for="sl">Last used</label><input id="sl" type="date" value="${esc(s.last)}">
+ <label style="display:flex;gap:8px;align-items:center;color:var(--ink)"><input id="st2" type="checkbox" style="width:auto"${s.trial?" checked":""}> This is a free trial (next bill date is when it ends)</label>
+ <p class="mut" style="font-size:13px">Entered by you, so usage shows as Estimated.</p>
+ <div class="acts"><button class="pri" data-act="savesub" data-id="${s.id||""}">Save</button>${s.id?`<button class="del" data-act="delsub" data-id="${s.id}">Delete</button>`:""}<button data-act="close">Cancel</button></div>`;dlg.showModal()}
+document.addEventListener("change",e=>{if(e.target.id==="bud"){S.budget=Number(e.target.value)||0;save();render()}});
+const dlg=$("#dlg"),opts=(a,v)=>a.map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("");
+{const _sm=dlg.showModal.bind(dlg);dlg.showModal=()=>{if(!dlg.open)_sm()}}
+const val=id=>$("#"+id).value.trim();
+function itemForm(i){i=i||{};
+ dlg.innerHTML=`<h2>${i.id?"Edit item":"Add item"}</h2>
+ <label for="n">Name</label><input id="n" value="${esc(i.name)}" placeholder="Dishwasher">
+ <div class="g2"><div><label for="b">Brand</label><input id="b" value="${esc(i.brand)}"></div><div><label for="m">Model number</label><input id="m" value="${esc(i.model)}"></div></div>
+ <label for="s">Serial number</label><input id="s" value="${esc(i.serial)}">
+ <div class="g2"><div><label for="c">Category</label><select id="c">${opts(CATS,i.category)}</select></div><div><label for="r">Room</label><select id="r">${opts(ROOMS,i.room)}</select></div></div>
+ <div class="g2"><div><label for="p">Purchase date</label><input id="p" type="date" value="${esc(i.purchased)}"></div><div><label for="w">Warranty ends</label><input id="w" type="date" value="${esc(i.warrantyEnd)}"></div></div>
+ <div class="g2"><div><label for="pr">Price</label><input id="pr" type="number" min="0" value="${esc(i.price)}"></div><div><label for="st">Store</label><input id="st" value="${esc(i.store)}"></div></div>
+ <label for="nt">Notes</label><textarea id="nt" rows="2">${esc(i.notes)}</textarea>
+ <div class="acts"><button class="pri" data-act="saveitem" data-id="${i.id||""}">Save item</button><button data-act="close">Cancel</button></div>`;dlg.showModal()}
+function detail(i){const w=warr(i),ts=S.tasks.filter(t=>t.itemId===i.id);
+ const f=(l,v)=>v?`<div class="f"><span>${l}</span><span>${esc(v)}</span></div>`:"";
+ dlg.innerHTML=`<h2>${esc(i.name)}</h2><p class="mut" style="margin:4px 0 12px">${esc(i.category)} · ${esc(i.room)}</p>
+ ${w?`<span class="tag ${w.c}">${w.t}</span>`:""}
+ <div class="plate" style="margin-top:12px">${f("Brand",i.brand)}${f("Model",i.model)}${f("Serial",i.serial)}${f("Purchased",fmt(i.purchased))}${f("Price",i.price?"$"+Number(i.price).toLocaleString():"")}${f("Store",i.store)}${f("Warranty ends",fmt(i.warrantyEnd))}${f("Notes",i.notes)}</div>
+ ${ts.length?'<h3 style="margin:16px 0 8px">Maintenance</h3>'+ts.map(taskRow).join(""):""}
+ <div class="acts"><button class="pri" data-act="edit" data-id="${i.id}">Edit</button><button data-act="newtask" data-id="${i.id}">Add reminder</button><button class="del" data-act="delitem" data-id="${i.id}">Delete</button><button data-act="close">Close</button></div>`;dlg.showModal()}
+function taskForm(itemId){
+ dlg.innerHTML=`<h2>Add reminder</h2><label for="tt">What needs doing?</label><input id="tt" placeholder="Change furnace filter">
+ <label for="ti">Related item (optional)</label><select id="ti"><option value="">None</option>${S.items.map(i=>`<option value="${i.id}"${i.id===itemId?" selected":""}>${esc(i.name)}</option>`).join("")}</select>
+ <div class="g2"><div><label for="te">Repeat every (days)</label><input id="te" type="number" min="1" value="90"></div><div><label for="tl">Last done</label><input id="tl" type="date" value="${iso(0)}"></div></div>
+ <div class="acts"><button class="pri" data-act="savetask">Save reminder</button><button data-act="close">Cancel</button></div>`;dlg.showModal()}
+function factForm(){
+ dlg.innerHTML=`<h2>Add fact</h2><label for="fl">What is it?</label><input id="fl" placeholder="Furnace filter size">
+ <label for="fv">Value</label><input id="fv" placeholder="16x25x1"><label for="fp">Where (optional)</label><input id="fp" placeholder="Utility room">
+ <div class="acts"><button class="pri" data-act="savefact">Save fact</button><button data-act="close">Cancel</button></div>`;dlg.showModal()}
+
+document.addEventListener("click",e=>{
+ const b=e.target.closest("[data-act]");if(!b)return;
+ const a=b.dataset.act,id=b.dataset.id;
+ if(a==="go"){view=id;render();scrollTo(0,0)}
+ else if(a==="cat"){cat=id;render()}
+ else if(a==="new")itemForm();
+ else if(a==="newfact")factForm();
+ else if(a==="newtask"){dlg.close();taskForm(id)}
+ else if(a==="view")detail(item(id));
+ else if(a==="edit")itemForm(item(id));
+ else if(a==="close")dlg.close();
+ else if(a==="ask")send();
+ else if(a==="mic"){if(DICT){if(listening)DICT.stop();else{const i=$("#ask");base=i.value?i.value.trim()+" ":"";DICT.start().catch(()=>{})}}}
+ else if(a==="sugg"){$("#ask").value=b.dataset.t;send()}
+ else if(a==="rmatt"){pend.splice(Number(id),1);renderPend()}
+ else if(a==="clearchat"){chat=[];render()}
+ else if(a==="pick")$("#"+id).click();
+ else if(a==="newsub")subForm();
+ else if(a==="editsub")subForm(S.subs.find(s=>s.id===id));
+ else if(a==="qs"){$("#sn").value=b.dataset.t}
+ else if(a==="delsub"){if(confirm("Delete this subscription?")){S.subs=S.subs.filter(s=>s.id!==id);save();dlg.close();render()}}
+ else if(a==="savesub"){
+  if(!val("sn")||!(Number(val("sp"))>=0)||val("sp")===""){(val("sn")?$("#sp"):$("#sn")).focus();return}
+  const o={name:val("sn"),price:Number(val("sp")),freq:val("sf"),next:val("sx")||iso(30),hours:Number(val("sh"))||0,days:Number(val("sd"))||0,last:val("sl"),trial:$("#st2").checked};
+  if(id)Object.assign(S.subs.find(s=>s.id===id),o);else S.subs.push({id:uid(),since:iso(0),...o});
+  save();dlg.close();render()}
+ else if(a==="savecolor"){const c=chat[Number(id)].color;S.facts.push({id:uid(),label:"Paint color measured from a photo",value:c.hex+" · RGB "+c.r+", "+c.g+", "+c.b,place:""});save();b.textContent="Saved";b.disabled=true}
+ else if(a==="done"){const t=S.tasks.find(t=>t.id===id);t.last=iso(0);save();dlg.open&&dlg.close();render()}
+ else if(a==="deltask"){S.tasks=S.tasks.filter(t=>t.id!==id);save();render()}
+ else if(a==="delfact"){S.facts=S.facts.filter(f=>f.id!==id);save();render()}
+ else if(a==="delitem"){if(confirm("Delete this item and its reminders?")){S.items=S.items.filter(i=>i.id!==id);S.tasks=S.tasks.filter(t=>t.itemId!==id);save();dlg.close();render()}}
+ else if(a==="saveitem"){
+  if(!val("n")){$("#n").focus();return}
+  const o={name:val("n"),brand:val("b"),model:val("m"),serial:val("s"),category:val("c"),room:val("r"),purchased:val("p"),warrantyEnd:val("w"),price:val("pr"),store:val("st"),notes:val("nt")};
+  if(id)Object.assign(item(id),o);else S.items.push({id:uid(),added:iso(0),...o});
+  save();dlg.close();render()}
+ else if(a==="savetask"){
+  if(!val("tt")){$("#tt").focus();return}
+  S.tasks.push({id:uid(),title:val("tt"),itemId:val("ti"),every:Number(val("te"))||90,last:val("tl")||iso(0)});save();dlg.close();render()}
+ else if(a==="savefact"){
+  if(!val("fl")||!val("fv")){return}
+  S.facts.push({id:uid(),label:val("fl"),value:val("fv"),place:val("fp")});save();dlg.close();render()}
+});
+document.addEventListener("keydown",e=>{const r=e.target;if((e.key==="Enter"||e.key===" ")&&r.classList&&r.classList.contains("click")){e.preventDefault();r.click()}});
+$("#q").addEventListener("input",e=>{query=e.target.value.trim();if(query&&view!=="items"){view="items";cat="All"}render()});
+render();scheduleReminders();
+</script>
+</body>
+</html>
